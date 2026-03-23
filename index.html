@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UAE MOI - Emergency Alert</title>
+    <style>
+        :root {
+            --moi-red: #d32f2f;
+            --moi-gold: #b08d57;
+            --bg-gray: #f4f4f4;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-gray);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .alert-container {
+            max-width: 600px;
+            background: white;
+            border: 2px solid var(--moi-red);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .header {
+            background-color: var(--moi-red);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .moi-branding {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .content {
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .bilingual-text {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .arabic {
+            direction: rtl;
+            font-family: Arial, sans-serif;
+            font-size: 1.2em;
+            color: #222;
+        }
+
+        .english {
+            font-size: 1em;
+            color: #444;
+        }
+
+        .photo-placeholder {
+            width: 100%;
+            height: 300px;
+            background-color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 15px 0;
+            border: 1px solid #ccc;
+            font-style: italic;
+            color: #777;
+        }
+
+        .action-footer {
+            background: #eee;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .call-999 {
+            color: var(--moi-red);
+            font-size: 1.5em;
+            display: block;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="alert-container">
+    <div class="header">
+        AMBER ALERT / تنبيه بـاختطاف طفل
+    </div>
+
+    <div class="moi-branding">
+        <span>Ministry of Interior</span>
+        <span>وزارة الداخلية</span>
+    </div>
+
+    <div class="content">
+        <div class="photo-placeholder">
+            [Insert Victim Image Here]
+        </div>
+
+        <div class="bilingual-text">
+            <div class="arabic">
+                <strong>تنبيه عاجل:</strong> تم الإبلاغ عن مفقود في منطقة [Area Name]. يرجى التواصل مع السلطات فوراً في حال توفر أي معلومات.
+            </div>
+            <div class="english">
+                <strong>URGENT ALERT:</strong> A missing person has been reported in [Area Name]. Please contact authorities immediately if you have any information.
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="details">
+            <p><strong>Last Seen:</strong> 23/03/2026 - 20:45</p>
+            <p><strong>Vehicle:</strong> White SUV, Dubai Plate [00000]</p>
+        </div>
+    </div>
+
+    <div class="action-footer">
+        IF SEEN, CALL / في حال المشاهدة اتصل بـ
+        <span class="call-999">999</span>
+    </div>
+</div>
+
+</body>
+</html>
