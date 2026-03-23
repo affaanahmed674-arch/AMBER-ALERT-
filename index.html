@@ -3,158 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Samsung Lock Screen</title>
+    <title>New Tab</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        body, html { height: 100%; width: 100%; font-family: 'Segoe UI', Tahoma, sans-serif; overflow: hidden; }
 
-        body, html {
-            height: 100%; width: 100%;
-            overflow: hidden; background: #000;
-            font-family: "SamsungOne", "Roboto", "Segoe UI", sans-serif;
+        /* --- STATE 1: CHROME OFFLINE PAGE --- */
+        #offline-view {
+            background-color: #f7f7f7;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 10% 15%;
+            color: #5f6368;
+            transition: opacity 0.3s;
         }
 
-        .lockscreen {
-            height: 100dvh; width: 100vw;
-            /* High-def Samsung S24 style wallpaper */
-            background: url('https://images.wallpapersden.com/image/download/samsung-galaxy-s24-ultra-stock-wallpaper_bWltZ2mUmZqaraWkpJRmbmdlrWZsZ2U.jpg') no-repeat center center;
-            background-size: cover;
-            position: relative;
-            display: flex; flex-direction: column; align-items: center;
+        .dino-icon { width: 72px; height: 72px; background: #5f6368; mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M22 13V7h-2V5h-2V3h-6v2h-2v2H6v2H4v2H2v8h2v-2h2v2h2v-2h2v2h2v-2h2v2h2v-2h2v2h2v-6h-2z"/></svg>'); -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M22 13V7h-2V5h-2V3h-6v2h-2v2H6v2H4v2H2v8h2v-2h2v2h2v-2h2v2h2v-2h2v2h2v-2h2v2h2v-6h-2z"/></svg>'); margin-bottom: 20px; }
+        .offline-title { font-size: 1.5rem; margin-bottom: 15px; color: #202124; }
+        .offline-msg { font-size: 0.9rem; margin-bottom: 30px; line-height: 1.6; }
+        .refresh-btn { background-color: #1a73e8; color: white; border: none; padding: 10px 24px; border-radius: 4px; font-weight: 500; cursor: pointer; font-size: 0.9rem; width: fit-content; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+
+        /* --- STATE 2: YOUTUBE DARK MODE --- */
+        #youtube-view {
+            display: none;
+            background-color: #0f0f0f;
+            height: 100vh;
+            color: white;
+            padding: 0;
         }
 
-        /* Samsung Clock & Date */
-        .clock-container {
-            margin-top: 15vh;
-            text-align: center;
-            color: rgba(255, 255, 255, 0.95);
-            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        }
-        .time { font-size: 84px; font-weight: 300; letter-spacing: -2px; }
-        .date { font-size: 20px; font-weight: 400; margin-top: -5px; }
+        .yt-header { height: 56px; display: flex; align-items: center; padding: 0 16px; border-bottom: 1px solid #333; }
+        .yt-logo { font-weight: bold; font-size: 1.2rem; display: flex; align-items: center; gap: 5px; }
+        .yt-logo span { background: red; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; }
+        .yt-search { flex: 1; max-width: 600px; height: 36px; background: #222; border: 1px solid #333; border-radius: 40px; margin: 0 auto; }
+        
+        .yt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; padding: 24px; }
+        .yt-thumb { background: #333; aspect-ratio: 16/9; border-radius: 12px; margin-bottom: 8px; }
+        .yt-text { height: 15px; background: #333; border-radius: 4px; width: 80%; margin-bottom: 5px; }
 
-        /* The Amber Alert Notification */
+        /* --- THE ALERT (Samsung Style) --- */
         #alert-card {
-            position: absolute;
-            top: 45%; left: 50%;
-            transform: translate(-50%, -50%) scale(0.9);
-            width: 92%; max-width: 380px;
-            background: rgba(255, 255, 255, 0.94);
-            backdrop-filter: blur(15px);
-            border-radius: 28px;
-            padding: 24px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-            opacity: 0;
-            transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
-            z-index: 1000;
-            pointer-events: none;
+            position: fixed;
+            top: -300px; left: 50%;
+            transform: translateX(-50%);
+            width: 90%; max-width: 380px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 26px;
+            padding: 22px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            z-index: 9999;
+            transition: top 0.6s cubic-bezier(0.18, 0.89, 0.32, 1.1);
         }
 
-        #alert-card.active {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1);
-            pointer-events: auto;
-        }
+        .alert-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; color: #000; font-weight: 800; }
+        .icon-tri { width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 18px solid #cc0000; position: relative; }
+        .icon-tri::after { content: '!'; position: absolute; color: white; font-size: 11px; left: -2px; top: 4px; }
+        
+        .msg-text { color: #111; font-size: 14px; line-height: 1.5; }
+        .arabic { direction: rtl; display: block; font-weight: 700; margin-bottom: 10px; font-size: 15px; }
+        .ok-btn { margin-top: 15px; border-top: 1px solid #ddd; padding-top: 12px; color: #007aff; font-weight: 700; text-align: center; cursor: pointer; }
 
-        .alert-header {
-            display: flex; align-items: center; gap: 12px;
-            margin-bottom: 15px; font-weight: 700; font-size: 16px; color: #000;
-        }
-
-        .icon-red {
-            width: 0; height: 0;
-            border-left: 11px solid transparent; border-right: 11px solid transparent;
-            border-bottom: 19px solid #d32f2f;
-            position: relative;
-        }
-        .icon-red::after {
-            content: '!'; position: absolute; color: white;
-            font-size: 13px; font-weight: 900; left: -2px; top: 4px;
-        }
-
-        .message { color: #1a1a1a; font-size: 14.5px; line-height: 1.5; }
-        .arabic { direction: rtl; display: block; font-weight: 600; margin-bottom: 12px; font-size: 15px; }
-        .english { display: block; opacity: 0.9; }
-
-        .ok-btn {
-            margin-top: 20px; border-top: 1px solid rgba(0,0,0,0.1);
-            padding-top: 15px; color: #007aff; font-weight: 700;
-            font-size: 17px; cursor: pointer; text-align: center;
-        }
-
-        /* Samsung Lockscreen Shortcuts */
-        .bottom-shelf {
-            position: absolute; bottom: 40px; width: 100%;
-            display: flex; justify-content: space-between; padding: 0 45px;
-        }
-        .icon {
-            width: 52px; height: 52px;
-            background: rgba(255,255,255,0.15);
-            border-radius: 50%; backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        /* Hidden Interaction Layer */
-        #trigger-all {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 9999; cursor: pointer;
+        /* Shaking effect for the whole page */
+        .shake { animation: shake 0.1s infinite; }
+        @keyframes shake {
+            0% { transform: translate(1px, 1px); }
+            50% { transform: translate(-1px, -1px); }
+            100% { transform: translate(1px, 1px); }
         }
     </style>
 </head>
 <body>
 
-    <div id="trigger-all" onclick="triggerAlert()"></div>
+    <div id="offline-view">
+        <div class="dino-icon"></div>
+        <h1 class="offline-title">No internet</h1>
+        <p class="offline-msg">
+            Try:<br>
+            • Checking the network cables, modem, and router<br>
+            • Reconnecting to Wi-Fi<br>
+            <br>
+            ERR_INTERNET_DISCONNECTED
+        </p>
+        <button class="refresh-btn" onclick="goOnline()">Refresh</button>
+    </div>
 
-    <div class="lockscreen">
-        <div class="clock-container">
-            <div class="time" id="clockTime">--:--</div>
-            <div class="date" id="dateText">Monday, March 23</div>
+    <div id="youtube-view">
+        <div class="yt-header">
+            <div class="yt-logo">YouTube <span>AE</span></div>
+            <div class="yt-search"></div>
         </div>
-
-        <div id="alert-card">
-            <div class="alert-header">
-                <div class="icon-red"></div>
-                Emergency Alert
-            </div>
-            <div class="message">
-                <span class="arabic">
-                    نظراً للأوضاع الراهنة تهديد صاروخي محتمل، يرجى الاحتماء فوراً في مبنى آمن بعيداً عن النوافذ والأبواب والمناطق المفتوحة وانتظر التعليمات الرسمية (وزارة الداخلية)
-                </span>
-                <span class="english">
-                    Due to current situation, a potential missile threats, Seek immediate shelter in the closest secure building, and to steer away from windows, doors, and open areas. Await for further instructions. (MOI)
-                </span>
-            </div>
-            <div class="ok-btn" onclick="location.reload()">OK</div>
-        </div>
-
-        <div class="bottom-shelf">
-            <div class="icon"></div>
-            <div class="icon"></div>
+        <div class="yt-grid">
+            <div><div class="yt-thumb"></div><div class="yt-text"></div><div class="yt-text" style="width:50%"></div></div>
+            <div><div class="yt-thumb"></div><div class="yt-text"></div><div class="yt-text" style="width:50%"></div></div>
+            <div><div class="yt-thumb"></div><div class="yt-text"></div><div class="yt-text" style="width:50%"></div></div>
+            <div><div class="yt-thumb"></div><div class="yt-text"></div><div class="yt-text" style="width:50%"></div></div>
         </div>
     </div>
 
-    <audio id="siren" loop preload="auto">
+    <div id="alert-card">
+        <div class="alert-header"><div class="icon-tri"></div> Emergency Alert</div>
+        <div class="msg-text">
+            <span class="arabic">نظراً للأوضاع الراهنة تهديد صاروخي محتمل، يرجى الاحتماء فوراً في مبنى آمن بعيداً عن النوافذ والأبواب...</span>
+            <span class="english">Due to current situation, a potential missile threats, Seek immediate shelter in the closest secure building... (MOI)</span>
+        </div>
+        <div class="ok-btn" onclick="location.reload()">OK</div>
+    </div>
+
+    <audio id="siren" loop>
         <source src="https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Emergency+Alert+System+EAS+Siren&filename=22/223730-8197779d-978a-407a-9764-90432174c35e.mp3" type="audio/mpeg">
     </audio>
 
     <script>
-        function updateClock() {
-            const now = new Date();
-            document.getElementById('clockTime').innerText = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
-            document.getElementById('dateText').innerText = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
+        function goOnline() {
+            const offline = document.getElementById('offline-view');
+            const youtube = document.getElementById('youtube-view');
+            const alert = document.getElementById('alert-card');
+            const siren = document.getElementById('siren');
 
-        function triggerAlert() {
-            document.getElementById('trigger-all').style.display = 'none';
-            document.getElementById('alert-card').classList.add('active');
+            // 1. Hide offline page
+            offline.style.display = 'none';
             
-            const audio = document.getElementById('siren');
-            audio.volume = 1.0;
-            audio.play().catch(() => {
-                // Fail-safe for extreme browser blocks
-                console.log("Audio requires interaction");
-            });
+            // 2. Show YouTube (Dark Mode)
+            youtube.style.display = 'block';
+            
+            // 3. Play the loud siren (Unlocked by Refresh click)
+            siren.volume = 1.0;
+            siren.play();
+
+            // 4. Drop the Alert and start shaking after a 0.5s "loading" delay
+            setTimeout(() => {
+                alert.style.top = '25%';
+                document.body.classList.add('shake');
+                
+                // Hardware vibration if on mobile
+                if ("vibrate" in navigator) {
+                    navigator.vibrate([1000, 200, 1000]);
+                }
+            }, 800);
         }
     </script>
 </body>
