@@ -1,168 +1,149 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UAE MOI - EMERGENCY ALERT</title>
+    <title>UAE Emergency Alert</title>
     <style>
-        :root {
-            --emergency-red: #cc0000;
-            --overlay-black: #1a1a1a;
-            --text-white: #ffffff;
-            --border-gold: #c5a059;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            background-color: var(--overlay-black);
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            /* Mimics the blue gradient background from your image */
+            background: radial-gradient(circle at center, #1a2a6c, #000000);
             height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             overflow: hidden;
-            color: var(--text-white);
         }
 
-        .alert-wrapper {
-            width: 90%;
-            max-width: 500px;
-            border: 4px solid var(--emergency-red);
-            border-radius: 12px;
-            background: rgba(0, 0, 0, 0.95);
-            animation: pulse-border 1.5s infinite alternate;
-        }
-
-        @keyframes pulse-border {
-            from { border-color: var(--emergency-red); box-shadow: 0 0 10px var(--emergency-red); }
-            to { border-color: #ff3333; box-shadow: 0 0 25px #ff3333; }
-        }
-
-        .banner {
-            background-color: var(--emergency-red);
-            padding: 15px;
+        /* The Notification Card */
+        .notification-card {
+            width: 320px;
+            background: rgba(255, 255, 255, 0.96);
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
             text-align: center;
-            font-weight: 900;
-            font-size: 1.4rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
+            animation: slideUp 0.5s ease-out;
+            display: none; /* Hidden until clicked */
         }
 
-        .moi-header {
-            padding: 20px 20px 10px 20px;
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .alert-header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #333;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 15px;
+            color: #000;
+            font-weight: 700;
+            font-size: 15px;
         }
 
-        .moi-logo-text {
-            font-size: 0.8rem;
-            color: var(--border-gold);
-            text-align: center;
-            flex: 1;
+        .alert-icon {
+            width: 22px;
+            height: 22px;
+            background-color: #d32f2f;
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            padding-top: 4px;
         }
 
-        .alert-body {
-            padding: 30px 20px;
-            text-align: center;
-        }
-
-        .status-icon {
-            font-size: 3rem;
-            margin-bottom: 20px;
-            color: var(--emergency-red);
-        }
-
-        .message-section {
-            margin-bottom: 25px;
+        .message-content {
+            color: #333;
+            line-height: 1.4;
+            font-size: 14px;
         }
 
         .arabic {
             direction: rtl;
-            font-size: 1.5rem;
-            margin-bottom: 15px;
-            line-height: 1.4;
+            font-weight: 500;
+            margin-bottom: 12px;
+            display: block;
         }
 
         .english {
-            font-size: 1.1rem;
-            line-height: 1.5;
-            opacity: 0.9;
+            display: block;
+            margin-bottom: 15px;
         }
 
-        .data-table {
-            width: 100%;
-            background: #222;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: left;
-            margin-top: 20px;
-            font-family: monospace;
-        }
-
-        .footer {
-            padding: 20px;
-            text-align: center;
-            background: #111;
-            border-bottom-left-radius: 8px;
-            border-bottom-right-radius: 8px;
-        }
-
-        .call-btn {
-            display: inline-block;
-            background: var(--emergency-red);
-            color: white;
-            padding: 12px 30px;
-            border-radius: 50px;
+        .ok-btn {
+            border-top: 1px solid #ddd;
+            padding-top: 12px;
+            color: #007aff;
+            font-weight: 600;
             text-decoration: none;
-            font-weight: bold;
-            font-size: 1.2rem;
-            margin-top: 10px;
+            display: block;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        /* Activation Overlay */
+        #overlay {
+            position: fixed;
+            width: 100%; height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            cursor: pointer;
+        }
+        
+        .start-text {
+            color: white;
+            border: 1px solid white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
     </style>
 </head>
 <body>
 
-<div class="alert-wrapper">
-    <div class="banner">
-        Emergency Alert / تنبيه طارئ
+    <div id="overlay" onclick="activateAlert()">
+        <div class="start-text">Tap to Broadcast</div>
     </div>
 
-    <div class="moi-header">
-        <div class="moi-logo-text">وزارة الداخلية<br>MINISTRY OF INTERIOR</div>
-    </div>
-
-    <div class="alert-body">
-        <div class="status-icon">⚠️</div>
-        
-        <div class="message-section">
-            <div class="arabic">
-                <strong>تنبيه أمني:</strong> تم رصد خرق أمني محتمل في منطقتكم. يرجى اتباع تعليمات السلامة الصادرة من الجهات المختصة.
-            </div>
-            <div class="english">
-                <strong>SECURITY ALERT:</strong> A potential security breach has been detected in your area. Please follow safety instructions issued by authorities.
-            </div>
+    <div class="notification-card" id="card">
+        <div class="alert-header">
+            <div class="alert-icon">!</div>
+            Emergency Alert
         </div>
 
-        <div class="data-table">
-            <div>EVENT_ID: MOI-SEC-9912</div>
-            <div>STATUS: CRITICAL / عاجل</div>
-            <div>LOCATION: [LOCAL_GRID_DETECTED]</div>
+        <div class="message-content">
+            <span class="arabic">
+                نظراً للأوضاع الراهنة تهديد صاروخي محتمل، يرجى الاحتماء فوراً في مبنى آمن بعيداً عن النوافذ والأبواب والمناطق المفتوحة وانتظر التعليمات الرسمية (وزارة الداخلية)
+            </span>
+            <span class="english">
+                Due to current situation, a potential missile threats, Seek immediate shelter in the closest secure building, and to steer away from windows, doors, and open areas. Await for further instructions. (MOI)
+            </span>
         </div>
+
+        <div class="ok-btn" onclick="location.reload()">OK</div>
     </div>
 
-    <div class="footer">
-        FOLLOW UPDATES VIA MOI APP
-        <br>
-        <a href="#" class="call-btn">999</a>
-    </div>
-</div>
+    <audio id="siren" loop>
+        <source src="https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Emergency+Alert+System+EAS+Siren&filename=22/223730-8197779d-978a-407a-9764-90432174c35e.mp3" type="audio/mpeg">
+    </audio>
 
+    <script>
+        function activateAlert() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('card').style.display = 'block';
+            document.getElementById('siren').play();
+        }
+    </script>
 </body>
 </html>
