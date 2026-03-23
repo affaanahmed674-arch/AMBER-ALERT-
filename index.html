@@ -2,147 +2,159 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UAE Emergency Alert</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Samsung Lock Screen</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        body {
-            /* Mimics the blue gradient background from your image */
-            background: radial-gradient(circle at center, #1a2a6c, #000000);
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            overflow: hidden;
+        body, html {
+            height: 100%; width: 100%;
+            overflow: hidden; background: #000;
+            font-family: "SamsungOne", "Roboto", "Segoe UI", sans-serif;
         }
 
-        /* The Notification Card */
-        .notification-card {
-            width: 320px;
-            background: rgba(255, 255, 255, 0.96);
-            border-radius: 18px;
-            padding: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        .lockscreen {
+            height: 100dvh; width: 100vw;
+            /* High-def Samsung S24 style wallpaper */
+            background: url('https://images.wallpapersden.com/image/download/samsung-galaxy-s24-ultra-stock-wallpaper_bWltZ2mUmZqaraWkpJRmbmdlrWZsZ2U.jpg') no-repeat center center;
+            background-size: cover;
+            position: relative;
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        /* Samsung Clock & Date */
+        .clock-container {
+            margin-top: 15vh;
             text-align: center;
-            animation: slideUp 0.5s ease-out;
-            display: none; /* Hidden until clicked */
+            color: rgba(255, 255, 255, 0.95);
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .time { font-size: 84px; font-weight: 300; letter-spacing: -2px; }
+        .date { font-size: 20px; font-weight: 400; margin-top: -5px; }
+
+        /* The Amber Alert Notification */
+        #alert-card {
+            position: absolute;
+            top: 45%; left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            width: 92%; max-width: 380px;
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(15px);
+            border-radius: 28px;
+            padding: 24px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            opacity: 0;
+            transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+            z-index: 1000;
+            pointer-events: none;
         }
 
-        @keyframes slideUp {
-            from { transform: translateY(50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        #alert-card.active {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            pointer-events: auto;
         }
 
         .alert-header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 15px;
-            color: #000;
-            font-weight: 700;
-            font-size: 15px;
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 15px; font-weight: 700; font-size: 16px; color: #000;
         }
 
-        .alert-icon {
-            width: 22px;
-            height: 22px;
-            background-color: #d32f2f;
-            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 14px;
-            font-weight: bold;
-            padding-top: 4px;
+        .icon-red {
+            width: 0; height: 0;
+            border-left: 11px solid transparent; border-right: 11px solid transparent;
+            border-bottom: 19px solid #d32f2f;
+            position: relative;
+        }
+        .icon-red::after {
+            content: '!'; position: absolute; color: white;
+            font-size: 13px; font-weight: 900; left: -2px; top: 4px;
         }
 
-        .message-content {
-            color: #333;
-            line-height: 1.4;
-            font-size: 14px;
-        }
-
-        .arabic {
-            direction: rtl;
-            font-weight: 500;
-            margin-bottom: 12px;
-            display: block;
-        }
-
-        .english {
-            display: block;
-            margin-bottom: 15px;
-        }
+        .message { color: #1a1a1a; font-size: 14.5px; line-height: 1.5; }
+        .arabic { direction: rtl; display: block; font-weight: 600; margin-bottom: 12px; font-size: 15px; }
+        .english { display: block; opacity: 0.9; }
 
         .ok-btn {
-            border-top: 1px solid #ddd;
-            padding-top: 12px;
-            color: #007aff;
-            font-weight: 600;
-            text-decoration: none;
-            display: block;
-            width: 100%;
-            cursor: pointer;
+            margin-top: 20px; border-top: 1px solid rgba(0,0,0,0.1);
+            padding-top: 15px; color: #007aff; font-weight: 700;
+            font-size: 17px; cursor: pointer; text-align: center;
         }
 
-        /* Activation Overlay */
-        #overlay {
-            position: fixed;
-            width: 100%; height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-            cursor: pointer;
+        /* Samsung Lockscreen Shortcuts */
+        .bottom-shelf {
+            position: absolute; bottom: 40px; width: 100%;
+            display: flex; justify-content: space-between; padding: 0 45px;
         }
-        
-        .start-text {
-            color: white;
-            border: 1px solid white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+        .icon {
+            width: 52px; height: 52px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 50%; backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Hidden Interaction Layer */
+        #trigger-all {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 9999; cursor: pointer;
         }
     </style>
 </head>
 <body>
 
-    <div id="overlay" onclick="activateAlert()">
-        <div class="start-text">Tap to Broadcast</div>
-    </div>
+    <div id="trigger-all" onclick="triggerAlert()"></div>
 
-    <div class="notification-card" id="card">
-        <div class="alert-header">
-            <div class="alert-icon">!</div>
-            Emergency Alert
+    <div class="lockscreen">
+        <div class="clock-container">
+            <div class="time" id="clockTime">--:--</div>
+            <div class="date" id="dateText">Monday, March 23</div>
         </div>
 
-        <div class="message-content">
-            <span class="arabic">
-                نظراً للأوضاع الراهنة تهديد صاروخي محتمل، يرجى الاحتماء فوراً في مبنى آمن بعيداً عن النوافذ والأبواب والمناطق المفتوحة وانتظر التعليمات الرسمية (وزارة الداخلية)
-            </span>
-            <span class="english">
-                Due to current situation, a potential missile threats, Seek immediate shelter in the closest secure building, and to steer away from windows, doors, and open areas. Await for further instructions. (MOI)
-            </span>
+        <div id="alert-card">
+            <div class="alert-header">
+                <div class="icon-red"></div>
+                Emergency Alert
+            </div>
+            <div class="message">
+                <span class="arabic">
+                    نظراً للأوضاع الراهنة تهديد صاروخي محتمل، يرجى الاحتماء فوراً في مبنى آمن بعيداً عن النوافذ والأبواب والمناطق المفتوحة وانتظر التعليمات الرسمية (وزارة الداخلية)
+                </span>
+                <span class="english">
+                    Due to current situation, a potential missile threats, Seek immediate shelter in the closest secure building, and to steer away from windows, doors, and open areas. Await for further instructions. (MOI)
+                </span>
+            </div>
+            <div class="ok-btn" onclick="location.reload()">OK</div>
         </div>
 
-        <div class="ok-btn" onclick="location.reload()">OK</div>
+        <div class="bottom-shelf">
+            <div class="icon"></div>
+            <div class="icon"></div>
+        </div>
     </div>
 
-    <audio id="siren" loop>
+    <audio id="siren" loop preload="auto">
         <source src="https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Emergency+Alert+System+EAS+Siren&filename=22/223730-8197779d-978a-407a-9764-90432174c35e.mp3" type="audio/mpeg">
     </audio>
 
     <script>
-        function activateAlert() {
-            document.getElementById('overlay').style.display = 'none';
-            document.getElementById('card').style.display = 'block';
-            document.getElementById('siren').play();
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clockTime').innerText = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+            document.getElementById('dateText').innerText = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        function triggerAlert() {
+            document.getElementById('trigger-all').style.display = 'none';
+            document.getElementById('alert-card').classList.add('active');
+            
+            const audio = document.getElementById('siren');
+            audio.volume = 1.0;
+            audio.play().catch(() => {
+                // Fail-safe for extreme browser blocks
+                console.log("Audio requires interaction");
+            });
         }
     </script>
 </body>
